@@ -11,6 +11,8 @@ public class ExampleClass implements ExampleInterface {
 	public Integer pubNumber;
 	public String pubString;
 	
+	public ExampleEnum exampleEnum;
+	
 	private String[] stringArray;
 
 	@Override
@@ -18,9 +20,13 @@ public class ExampleClass implements ExampleInterface {
 		System.out.println(message);
 	}
 	
-	private <T> void method2(List<T> list) {
+	public <T> void method2(List<T> list) {
 		list.forEach((item) -> {
 			System.out.println(item);
 		});
 	}
+}
+
+enum ExampleEnum {
+	ONE, TWO, THREE
 }

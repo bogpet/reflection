@@ -1,6 +1,6 @@
 package hu.sol.reflection.reflection.examples;
 
-import java.lang.reflect.Array;
+import java.lang.reflect.Array; 	
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
@@ -21,6 +21,32 @@ import static java.lang.System.out;
 import java.lang.annotation.Annotation;
 
 public class ClassExamples {
+	
+	public static void getClassExamples() throws ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+		Class currentClass;
+		ExampleClass exampleClass = new ExampleClass();
+		
+		currentClass = ClassExamples.class;
+		//currentClass = Class.forName("hu.sol.reflection.bean.ExampleClass");
+		currentClass = exampleClass.getClass();
+		
+		currentClass.getSuperclass();
+		currentClass.getDeclaredClasses();
+		currentClass.getInterfaces();
+		currentClass.getAnnotations();
+		currentClass.getModifiers();
+		currentClass.getTypeParameters();
+		
+		//példányosítás konstruktorral:
+		Constructor constructor = String.class.getConstructor(String.class);
+		String myString = (String) constructor.newInstance("constructor-arg1");
+
+		//várt paraméterek elkérése:
+		Arrays.asList(constructor.getParameterTypes()).forEach((parameter) -> {
+			out.println(parameter.getName());
+		});
+		
+	}
 
 	public static void classDeclarationSpy(String className) {
 		try {
@@ -114,6 +140,7 @@ public class ClassExamples {
 		out.println("\nMetódusok:");
 		
 		// private és publikus metódusok: 
+		currentClass.getMethods();
 		Method[] allMethods = currentClass.getDeclaredMethods();
 		Arrays.asList(allMethods).forEach((method) -> {
 			out.format("%s%n", method.toGenericString());
@@ -143,7 +170,16 @@ public class ClassExamples {
 					e.printStackTrace();
 				}
 			}
+			out.println(Modifier.toString(method.getModifiers()));
 		});
+		
+		try {
+			Method method = currentClass.getMethod("method2", List.class);
+			method.invoke(ExampleClass.class.newInstance(), new ArrayList<String>(Arrays.asList("egy","kettő")));
+		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public static void arrayExamples(Class currentClass)  {
@@ -151,10 +187,33 @@ public class ClassExamples {
 		Arrays.asList(currentClass.getDeclaredFields()).forEach((field) -> {
 			
 			if(field.getType().isArray()) {
-				out.println(field.getName() + " field is ans array");
+				out.println(field.getName() + " field is an array");
 			}
 		});
 	}
+	
+	public static void enumExamples(Class currentClass) {
+		out.println("\nEnum:");
+		
+		try {
+			Field field = currentClass.getField("exampleEnum");
+			if(field.getType().isEnum()) {
+				out.println(field.getName() + " field is an enum");
+			}
+		} catch (NoSuchFieldException | SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+	}
+	
+	public static void annotationExamples(Class currentClass) throws NoSuchFieldException, SecurityException, NoSuchMethodException {
+		currentClass.getAnnotations();
+		currentClass.getField("annotatedField").getAnnotations();
+		currentClass.getMethod("method1", null).getAnnotations();
+		
+		currentClass.getMethod("method1", null).getAnnotation(Override.class);
+	}
+	
 	
 	private static void logFields(Field[] fields) {
 		List<Field> fieldList = Arrays.asList(fields);
@@ -162,6 +221,7 @@ public class ClassExamples {
 		fieldList.stream().forEach((field) -> {
 			out.println(field.getName());
 			out.println("Elérhető: " + field.isAccessible());
+			out.println("Módosítói: " + Modifier.toString(field.getModifiers()));
 		});
 		
 		
